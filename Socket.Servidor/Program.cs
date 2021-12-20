@@ -13,6 +13,9 @@ namespace Calculator.Servidor
         {
             IPHostEntry host = Dns.GetHostEntry("localhost");
             IPAddress ipAddress = host.AddressList[0];
+
+            //IPAddress ipAddress = IPAddress.Parse("ip escucha");
+
             IPEndPoint localEndPoint = new IPEndPoint(ipAddress, 2800);
 
             try

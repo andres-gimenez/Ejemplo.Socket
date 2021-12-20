@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
+using System.Linq;
 
 namespace Calculator.Cliente
 {
@@ -37,8 +38,12 @@ namespace Calculator.Cliente
                 // Get Host IP Address that is used to establish a connection
                 // In this case, we get one IP address of localhost that is IP : 127.0.0.1
                 // If a host has multiple addresses, you will get a list of addresses
+                
                 IPHostEntry host = Dns.GetHostEntry("localhost");
                 IPAddress ipAddress = host.AddressList[0];
+
+                //IPAddress ipAddress = IPAddress.Parse("ip destino");
+
                 IPEndPoint remoteEP = new IPEndPoint(ipAddress, 2800);
 
                 // Create a TCP/IP  socket.

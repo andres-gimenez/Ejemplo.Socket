@@ -52,7 +52,6 @@ namespace Calculator.Cliente
                 IPHostEntry host = Dns.GetHostEntry("localhost");
                 IPAddress ipAddress = host.AddressList[0];
 
-                //IPAddress ipAddress = IPAddress.Parse("ip destino");
 
                 IPEndPoint remoteEP = new IPEndPoint(ipAddress, 2800);
 
@@ -73,7 +72,6 @@ namespace Calculator.Cliente
 
 
                     var cacheEnvio = Serializacion.Serializar(objeto);
-                    //var cacheEnvio = Encoding.UTF8.GetBytes(mensaje);
 
                     // Send the data through the socket.
                     int bytesSend = sender.Send(cacheEnvio);

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Calculator.Comun;
+using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -33,24 +34,54 @@ namespace Calculator.Servidor
                 while (true)
                 {
                     Socket handler = listener.Accept();
+ 
 
                     Console.WriteLine("Socket connected to {0}",
-                        handler.RemoteEndPoint.ToString());
+                    handler.RemoteEndPoint.ToString());
 
                     var cacheMenaje = new byte[4096];
                     int bytesMenaje = handler.Receive(cacheMenaje);
 
+
+
                     if (bytesMenaje > 0)
                     {
-                        var mensaje = Encoding.UTF8.GetString(cacheMenaje, 0, bytesMenaje);
+                        //deserializamos el mensaje que envia el cliente y lo transformamos al objeto original para poder operar
+                        var objDes = Serializacion.Deserializar<DatosOperacion>(cacheMenaje, 0, bytesMenaje);
+                        //Encoding.UTF8.GetString(cacheMenaje, 0, bytesMenaje);
 
-                        var respuesta = "Ok: " + mensaje;
+                        //calculamos la operacion que nos ha enviado el cliente
+                        var resultado = realizarOperacon(objDes.operando1, objDes.operando2, objDes.Operacion);
 
-                        Console.WriteLine("{0} -> {1}", mensaje, respuesta);
+                        if (resultado != -1)
+                        {
+                            var respuesta = "Ok ";
 
-                        var cacheRespuesta = Encoding.UTF8.GetBytes(respuesta);
-                        handler.Send(cacheRespuesta);
-                        Thread.Sleep(0);
+                            Console.WriteLine("{0} -> {1}", objDes, respuesta);
+
+                            //montamos un nuevo objeto con el resultado de la operacion
+                            DatosOpServer objFinal = new DatosOpServer
+                            {
+                                operando1 = objDes.operando1,
+                                operando2 = objDes.operando2,
+                                Operacion = objDes.Operacion,
+                                resultado = resultado
+                            };
+
+                            Console.WriteLine("Operacion realizada con exito");
+
+                            //serializamos el objeto con la operacion hecha
+                            var Opfinal = Serializacion.Serializar(objFinal);
+
+                            //enviamos el objeto serializado al cliente
+                            handler.Send(Opfinal);
+                            Console.WriteLine("Operacion enviada al cliente con exito.");
+                            Thread.Sleep(0);
+                        }
+                        else {
+                            throw new Exception("");
+                        }
+
                     }
 
                     handler.Shutdown(SocketShutdown.Both);
@@ -62,8 +93,48 @@ namespace Calculator.Servidor
                 Console.WriteLine(e.ToString());
             }
 
-            Console.WriteLine("\n Press any key to continue...");
+            Console.WriteLine("\n Presiona cualquier tecla para continuar...");
             Console.ReadKey();
+        }
+
+        public static double realizarOperacon(double operando1, double operando2, TipoOperacion operacion)
+        {
+            try
+            {
+                if (operacion == TipoOperacion.suma)
+                {
+                    return operando1 + operando2;
+                }
+                else if (operacion == TipoOperacion.resta)
+                {
+                    return operando1 - operando2;
+                }
+                else if (operacion == TipoOperacion.multiplicacion)
+                {
+                    return operando1 * operando2;
+                }
+                else if (operacion == TipoOperacion.division)
+                {
+                    if (operando2 == 0)
+                    {
+                        throw new Exception("No es posible dividir entre " + operando2);
+                    }
+                    else
+                    {
+                        return operando1 / operando2;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Operacion introducida no válida");
+                    return -1;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return -1;
+            }
         }
     }
 }

@@ -82,7 +82,6 @@ namespace Calculator.Cliente
 
                     //deserializo la operacion final que me ha enviado en servidor
                     var opFinal = Serializacion.Deserializar<DatosOpServer>(bufferRec, 0, bytesRec1);
-                    //var resultado = Encoding.UTF8.GetString(bufferRec, 0, bytesRec1);
 
                     // Release the socket.
                     sender.Shutdown(SocketShutdown.Both);

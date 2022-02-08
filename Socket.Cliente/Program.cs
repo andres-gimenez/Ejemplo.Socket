@@ -36,16 +36,6 @@ namespace Calculator.Cliente
             //serializo el objeto, lo envio al servidor y retorno la respuesta de este y lo visualizo
             Console.WriteLine(EnviaMenaje(resultOperacion).ToString());
 
-            //while (true)
-            //{
-            //    Console.WriteLine("Mensaje:");
-            //    string mensaje = Console.ReadLine();
-
-            //    var resultado = EnviaMenaje(mensaje);
-
-            //    Console.WriteLine(resultado);
-            //}
-
             Console.Write("Pulsa cualquier tecla para cerrar la calculadora app...");
             Console.ReadKey();
         }

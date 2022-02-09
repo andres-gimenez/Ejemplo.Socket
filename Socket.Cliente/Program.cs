@@ -33,14 +33,25 @@ namespace Calculator.Cliente
                 Operacion = (TipoOperacion)int.Parse(operacion)
             };
 
-            //serializo el objeto, lo envio al servidor y retorno la respuesta de este y lo visualizo
-            Console.WriteLine(EnviaMenaje(resultOperacion).ToString());
+            //serializo el objeto, lo envio al servidor y obtengo la respuesta del servidor 
+            var opFinal = EnviaMensaje(resultOperacion);
+
+            //compruebo si se ha realizado la operacion matematica adecuadamente y visualizo el resultado edl servidor
+            if (opFinal != null)
+            {
+                Console.WriteLine("\n"+opFinal.ToString());
+            }
+            else 
+            {
+                Console.WriteLine("\n Operacion o datos introducidos no válidos.");
+            }
+            
 
             Console.Write("Pulsa cualquier tecla para cerrar la calculadora app...");
             Console.ReadKey();
         }
 
-        static DatosOpServer EnviaMenaje<T>( T objeto)
+        static DatosOpServer EnviaMensaje<T>( T objeto)
         {
             try
             {
@@ -48,7 +59,7 @@ namespace Calculator.Cliente
                 // Get Host IP Address that is used to establish a connection
                 // In this case, we get one IP address of localhost that is IP : 127.0.0.1
                 // If a host has multiple addresses, you will get a list of addresses
-                
+
                 IPHostEntry host = Dns.GetHostEntry("localhost");
                 IPAddress ipAddress = host.AddressList[0];
 
@@ -70,10 +81,10 @@ namespace Calculator.Cliente
                     Console.WriteLine("Socket redad for {0}",
                         sender.LocalEndPoint.ToString());
 
-
+                    //serializo el objeto
                     var cacheEnvio = Serializacion.Serializar(objeto);
 
-                    // Send the data through the socket.
+                    // envio el objeto atraves del socket.
                     int bytesSend = sender.Send(cacheEnvio);
 
                     // Receive the response from the remote device.

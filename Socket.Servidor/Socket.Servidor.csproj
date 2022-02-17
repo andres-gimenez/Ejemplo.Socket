@@ -5,4 +5,10 @@
 		<FileUpgradeFlags>
 		</FileUpgradeFlags>
 	</PropertyGroup>
+	<ItemGroup>
+	  <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\Socket.Comun\Socket.Comun.csproj" />
+	</ItemGroup>
 </Project>

@@ -1,36 +1,57 @@
-﻿using System;
-using System.Diagnostics;
+﻿using Calculator.Comun;
+using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Text.Json;
-using System.Threading;
-using System.Linq;
+
 
 namespace Calculator.Cliente
 {
     internal class Program
     {
+
+
         static void Main(string[] args)
         {
-            Console.WriteLine("Console C#\r");
+            Console.WriteLine("Consola C#\r");
             Console.WriteLine("------------------------\n");
 
-            while (true)
+            Console.WriteLine("Introduce primer operando: ");
+            double operando = Double.Parse(Console.ReadLine());
+
+            Console.WriteLine("Introduce segundo operando: ");
+            double operador = Double.Parse(Console.ReadLine());
+
+            Console.WriteLine("Introduce operacion a realizar Suma[65] Resta[76] Multiplicacion[87] Division[98]: ");
+            String operacion = Console.ReadLine();
+
+            //creamos el objeto DatosOpeacion para guardar la operacion
+            DatosOperacion resultOperacion = new DatosOperacion
             {
-                Console.WriteLine("Mensaje:");
-                string mensaje = Console.ReadLine();
+                operando1 = operando,
+                operando2 = operador,
+                Operacion = (TipoOperacion)int.Parse(operacion)
+            };
 
-                var resultado = EnviaMenaje(mensaje);
+            //serializo el objeto, lo envio al servidor y obtengo la respuesta del servidor 
+            var opFinal = EnviaMensaje(resultOperacion);
 
-                Console.WriteLine(resultado);
+            //compruebo si se ha realizado la operacion matematica adecuadamente y visualizo el resultado edl servidor
+            if (opFinal != null)
+            {
+                Console.WriteLine("\n"+opFinal.ToString());
             }
+            else 
+            {
+                Console.WriteLine("\n Operacion o datos introducidos no válidos.");
+            }
+            
 
-            Console.Write("Press any key to close the Calculator console app...");
+            Console.Write("Pulsa cualquier tecla para cerrar la calculadora app...");
             Console.ReadKey();
         }
 
-        static string EnviaMenaje(string mensaje)
+        static DatosOpServer EnviaMensaje<T>( T objeto)
         {
             try
             {
@@ -38,17 +59,15 @@ namespace Calculator.Cliente
                 // Get Host IP Address that is used to establish a connection
                 // In this case, we get one IP address of localhost that is IP : 127.0.0.1
                 // If a host has multiple addresses, you will get a list of addresses
-                
+
                 IPHostEntry host = Dns.GetHostEntry("localhost");
                 IPAddress ipAddress = host.AddressList[0];
 
-                //IPAddress ipAddress = IPAddress.Parse("ip destino");
 
                 IPEndPoint remoteEP = new IPEndPoint(ipAddress, 2800);
 
                 // Create a TCP/IP  socket.
-                using Socket sender = new Socket(ipAddress.AddressFamily,
-                    SocketType.Stream, ProtocolType.Tcp);
+                using Socket sender = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
                 // Connect the socket to the remote endpoint. Catch any errors.
                 try
@@ -62,22 +81,24 @@ namespace Calculator.Cliente
                     Console.WriteLine("Socket redad for {0}",
                         sender.LocalEndPoint.ToString());
 
-                    var cacheEnvio = Encoding.UTF8.GetBytes(mensaje);
+                    //serializo el objeto
+                    var cacheEnvio = Serializacion.Serializar(objeto);
 
-                    // Send the data through the socket.
+                    // envio el objeto atraves del socket.
                     int bytesSend = sender.Send(cacheEnvio);
 
                     // Receive the response from the remote device.
                     byte[] bufferRec = new byte[1024];
                     int bytesRec1 = sender.Receive(bufferRec);
 
-                    var resultado = Encoding.UTF8.GetString(bufferRec, 0, bytesRec1);
+                    //deserializo la operacion final que me ha enviado en servidor
+                    var opFinal = Serializacion.Deserializar<DatosOpServer>(bufferRec, 0, bytesRec1);
 
                     // Release the socket.
                     sender.Shutdown(SocketShutdown.Both);
                     sender.Close();
 
-                    return resultado;
+                    return opFinal;
 
                 }
                 catch (ArgumentNullException ane)

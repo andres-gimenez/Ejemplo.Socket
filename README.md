@@ -1,1 +1,3 @@
-# Ejemplo de comunicaci�n con socket
+# Ejemplo de comunicación con socket
+
+Practica para la comunicación de dos procesos utilizando socket.
